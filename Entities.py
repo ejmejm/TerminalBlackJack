@@ -1,7 +1,7 @@
 import random
 from InputHandler import getch
 
-name_val = {'A': 11, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 'J': 10, 'Q': 10, 'K': 10}
+name_val = {'Ace': 11, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 'Jack': 10, 'Queen': 10, 'King': 10}
 
 class Card():
     def __init__(self, name, suit):
@@ -64,6 +64,13 @@ class Player():
             return 'win'
         return 'continue'
 
+    def handToStr(self):
+        string = ''
+        for card in self.cards:
+            string += str(card.name) + ' of ' + card.suit[0].upper() + card.suit[1:] + 's, ')
+        return string[:-2]
+
+
 class HumanPlayer(Player):
     def __init__(self, deck):
         super().__init__(deck)
@@ -97,7 +104,7 @@ class GameController():
     def clearScreen(self):
         print(chr(27) + '[2J')
 
-    def checkGameOver(player1, player2=None):
+    def checkGameOver(self, player1, player2=None):
         print(player1, player2)
         if player2 is not None:
             if player1.state == 'hold' and player2.state == 'hold':
@@ -115,11 +122,13 @@ class GameController():
             player1 = HumanPlayer(deck)
             player2 = AIPlayer(deck)
             human = player1
+            ai = player2
             print('You get to draw first!\n\n')
         else:
             player1 = AIPlayer(deck)
             player2 = HumanPlayer(deck)
             human = player2
+            ai = player1
 
         while len(deck.cards) > 0:
             print('Your hand:')
@@ -140,3 +149,29 @@ class GameController():
                 break
 
             self.clearScreen()
+            
+        self.postGame()
+
+    def postGame(self, human, ai):
+       if human.state == 'win':
+            print('You hit 21! You win!')
+        elif human.state == 'bust':
+            print('You busted :(')
+       elif ai.state == 'win':
+            print('Your opponent won by hitting 21')
+        elif ai.state == 'bust':
+            print('Your opponent busted and you won!')
+        elif human.total_value > ai.total_value:
+            print('You have a better hand than opponent, you win!')
+        elif ai.total_value > human.total_value:
+            print('Your oppenent had a better hand than you, better luck next time')
+        else:
+            print('The game was a draw :O')
+
+        print()
+        print('Your hand:')
+        print(human.handToStr())
+        print()
+        print('Opponent\'s hand:')
+        print(ai.handToStr())
+
